@@ -49,7 +49,6 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
     autocorrelation_and_significance function, this function test n values (cap)
     to find out if auto regresive models of order > 1 are worth exploring.
     Test criteria can be Akaike ('AIC') or Baye ('BIC').
-
     """
     ax = plt.gca()
     plt.rc('xtick', labelsize=13)
@@ -82,7 +81,6 @@ def ar_param_dictionary(train_df, order):
     given for the different time series in the train df, and stores a summary
     of results, the AR1 value, and the volatility (syandard deviation) of
     observations.
-
     """
     ar_params = {}
     for i, col in enumerate(train_df):
