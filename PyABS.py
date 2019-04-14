@@ -40,3 +40,32 @@ def autocorrelation_and_significance(series, ax=None, **kwds):
     lags = np.sort(np.append(df[df['autocorrelation'] > z95h]['lag'],
                              df[df['autocorrelation'] < z95l]['lag']))
     return df, lags, ax
+
+
+def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kwds):
+    """Optimal order of model.
+
+    """
+    ax = plt.gca()
+    plt.rc('xtick', labelsize=13)
+    plt.rc('ytick', labelsize=13)
+    num_lags = len(lags_to_test)
+    information_criteria = np.zeros(num_lags)
+    for lag in list(lags_to_test)[:cap]:
+        mod = ARMA(data.values, order=(lag,0))
+        res = mod.fit()
+        if test_criteria=='BIC':
+            information_criteria[lag] = res.bic
+            ax.set_title('Bayes Information Criterion', fontsize=20)
+            ax.set_ylabel('BIC', fontsize=15)
+        elif test_criteria =='AIC':
+            information_criteria[lag] = res.aic
+            ax.set_title('Akaike Information Criterion', fontsize=20)
+            ax.set_ylabel('AIC', fontsize=15)
+
+    ax.set_xlabel('Lag', fontsize=15)
+    ax.plot(lags_to_test[:cap], information_criteria[:cap], **kwds)
+    ax.legend(loc='best')
+    #print(lags_to_test, information_criteria)
+
+    return ax
