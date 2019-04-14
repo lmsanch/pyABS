@@ -43,7 +43,12 @@ def autocorrelation_and_significance(series, ax=None, **kwds):
 
 
 def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kwds):
-    """Optimal order of model.
+    """Optimal lags using Bayes or Akaike Information Criteria.
+
+    Given a time series, and significatnlags returned by the
+    autocorrelation_and_significance function, this function test n values (cap)
+    to find out if auto regresive models of order > 1 are worth exploring.
+    Test criteria can be Akaike ('AIC') or Baye ('BIC').
 
     """
     ax = plt.gca()
@@ -58,7 +63,7 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
             information_criteria[lag] = res.bic
             ax.set_title('Bayes Information Criterion', fontsize=20)
             ax.set_ylabel('BIC', fontsize=15)
-        elif test_criteria =='AIC':
+        elif test_criteria == 'AIC':
             information_criteria[lag] = res.aic
             ax.set_title('Akaike Information Criterion', fontsize=20)
             ax.set_ylabel('AIC', fontsize=15)
@@ -66,6 +71,5 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
     ax.set_xlabel('Lag', fontsize=15)
     ax.plot(lags_to_test[:cap], information_criteria[:cap], **kwds)
     ax.legend(loc='best')
-    #print(lags_to_test, information_criteria)
 
     return ax
