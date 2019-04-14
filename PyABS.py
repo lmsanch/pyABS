@@ -72,4 +72,17 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
     ax.plot(lags_to_test[:cap], information_criteria[:cap], **kwds)
     ax.legend(loc='best')
 
+def ar_param_dictionary(train_df, order):
+
+    ar_params = {}
+    for i, col in enumerate(train_df):
+        asset = train_df[col]
+        mod = ARMA(asset, order=(order,0))
+        res = mod.fit()
+        ar_params[i] = {'name': col,
+                        'summary': res.summary(),
+                        'AR1': res.arparams[0],
+                        'vol': res.sigma2}
+    return ar_params
+
     return ax
