@@ -52,9 +52,9 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
     num_lags = len(lags_to_test)
     information_criteria = np.zeros(num_lags)
     for lag in list(lags_to_test)[:cap]:
-        mod = ARMA(data.values, order=(lag,0))
+        mod = ARMA(data.values, order=(lag, 0))
         res = mod.fit()
-        if test_criteria=='BIC':
+        if test_criteria == 'BIC':
             information_criteria[lag] = res.bic
             ax.set_title('Bayes Information Criterion', fontsize=20)
             ax.set_ylabel('BIC', fontsize=15)
