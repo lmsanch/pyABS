@@ -6,10 +6,11 @@ Code to simulate purchase of portfolio of Asset backed Securities under simulate
 
 ### Steps ###
 
-*   Generates correlated random numbers to feed a multivariate process
+*   Generates correlated random numbers to feed a multivariate process applied to interest rates
 *   Simulates movements of spreads over a becnhmark for given asset classes
 *   Simulate purchases of assets under given assumptions
 *   Simulates probabilities of assets transtioning from intial rating to other rating and defaults, using a Markov process
+*   Determines distribution of returns under several scenarios
 
 ### Contact: ###
 * Luis M Sanchez:	<lmsanch@gmail.com>
