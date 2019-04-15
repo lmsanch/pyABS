@@ -158,3 +158,27 @@ def simulate_several_sets_correlated_rates(df_train, sims, date_index, ar_params
         asset_sim[asset] = master_sim.filter(like=asset, axis=1)
         asset_sim[asset].columns = list(np.arange(sims))
     return all_sims, asset_sim
+
+
+def estimate_1yr_transition(initial_rating='AAA'):
+    """Simulate 1 period rating transition.
+
+    This function estimates the transtion from any given rating
+    ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC'] to the same rating plus the 'D'
+    (default) state, based on observed trasitions for ABS in 1 year, excluding
+    mortgages. These are approximations, and each asset class should have its
+    own transtion matrix.
+    """
+    data = np.array([[9.081e-01, 8.330e-02, 6.500e-03, 9.000e-04, 6.000e-04, 3.000e-04, 2.000e-04, 1.000e-04],
+                     [7.000e-03, 9.065e-01, 7.790e-02, 6.400e-03, 6.000e-04, 1.300e-03, 2.000e-04, 1.000e-04],
+                     [9.000e-04, 2.270e-02, 9.105e-01, 5.520e-02, 7.400e-03, 2.600e-03, 1.000e-04, 6.000e-04],
+                     [2.000e-04, 3.300e-03, 5.950e-02, 8.693e-01, 5.300e-02, 1.170e-02, 1.200e-03, 1.800e-03],
+                     [3.000e-04, 1.400e-03, 6.700e-03, 7.730e-02, 8.053e-01, 8.840e-02, 1.000e-02, 1.060e-02],
+                     [0.000e+00, 1.100e-03, 2.400e-03, 4.300e-03, 6.480e-02, 8.346e-01, 4.070e-02, 5.210e-02],
+                     [2.200e-03, 2.200e-03, 2.200e-03, 1.300e-02, 2.380e-02, 1.124e-01, 6.486e-01, 1.956e-01]])
+    initial_ratings = ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC']
+    transition_to = initial_ratings.copy()
+    transition_to.append('D')
+    p_transition = pd.DataFrame(data, index=initial_ratings, columns=transition_to).transpose().to_dict()
+    final = np.random.choice(list(p_transition[initial_rating].keys()), 1, p=list(p_transition[initial_rating].values()))[0]
+    return final
