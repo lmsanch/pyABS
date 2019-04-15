@@ -106,3 +106,31 @@ def simulate_correlated_random_numbers(corr_matrix, n=1000):
     rnd_numbers = np.random.normal(0.0, 1.0, size=(n, corr_matrix.shape[0]))
     ans = rnd_numbers@upper_cholesky
     return(ans)
+
+def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_stress=1):
+    """Multivariate random normal.
+
+    A generalization of the one-dimensional normal distribution to higher
+    dimensions, using Cholesky decomposition, which is useful for efficient
+    numerical solutions.
+    https://math.stackexchange.com/questions/2079137/generating-multivariate-normal-samples-why-cholesky
+    """
+    corr_matrix = df_weekly_train.corr().as_matrix()
+    fut_rates = {}
+    for i in range(train_df.shape[1]):
+        fut_rates[i] = np.zeros(len(date_ix))
+        fut_rates[i][0] = train_df.iloc[-1,i]
+
+    corr_rnd = simulate_correlated_random_numbers(corr_matrix)
+    for k in range(train_df.shape[1]):
+        for l in range(len(date_ix)):
+            if l != 0:
+                fut_rates[k][l] = fut_rates[k][l-1]*ar_params_dict[k]['AR1'] + ar_params_dict[k]['vol'] * corr_rnd[:,k][l]
+                fut_rates[k][l] = (fut_rates[k][l])*(vol_stress)
+                #for any spread less than 10bps, repeat previous spread
+                if fut_rates[k][l] < 0:
+                    fut_rates[k][l] = fut_rates[k][l-1]
+                    #fut_rates[k][l] = 10
+    rates_df = pd.DataFrame(fut_rates, index=date_ix)
+    rates_df.columns = train_df.columns
+    return rates_df
