@@ -109,12 +109,11 @@ def simulate_correlated_random_numbers(corr_matrix, n=1000):
 
 
 def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_stress=1):
-    """Multivariate random normal.
+    """Simulate multiple future interest rates.
 
-    A generalization of the one-dimensional normal distribution to higher
-    dimensions, using Cholesky decomposition, which is useful for efficient
-    numerical solutions.
-    https://math.stackexchange.com/questions/2079137/generating-multivariate-normal-samples-why-cholesky
+    Given an historical time series of interest rates, an index of future dates,
+    and a dictionary of autoregresive parameters for the interest rates
+    this function generates a path of correlated interest rates.
     """
     corr_matrix = train_df.corr().as_matrix()
     fut_rates = {}
