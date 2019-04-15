@@ -95,7 +95,13 @@ def ar_param_dictionary(train_df, order):
 
 
 def simulate_correlated_random_numbers(corr_matrix, n=1000):
-    # Compute the (upper) Cholesky decomposition matrix
+    """Multivariate random normal.
+
+    A generalization of the one-dimensional normal distribution to higher
+    dimensions, using Cholesky decomposition, which is useful for efficient
+    numerical solutions.
+    https://math.stackexchange.com/questions/2079137/generating-multivariate-normal-samples-why-cholesky
+    """
     upper_cholesky = cholesky(corr_matrix)
     rnd_numbers = np.random.normal(0.0, 1.0, size=(n, corr_matrix.shape[0]))
     ans = rnd_numbers@upper_cholesky
