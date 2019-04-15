@@ -163,7 +163,7 @@ def simulate_several_sets_correlated_rates(df_train, sims, date_index, ar_params
 def estimate_1yr_transition(initial_rating='AAA'):
     """Simulate 1 period rating transition.
 
-    This function estimates the transtion from any given rating
+    This function estimates the transition from any given rating
     ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC'] to the same rating plus the 'D'
     (default) state, based on observed trasitions for ABS in 1 year, excluding
     mortgages. These are approximations, and each asset class should have its
@@ -182,3 +182,23 @@ def estimate_1yr_transition(initial_rating='AAA'):
     p_transition = pd.DataFrame(data, index=initial_ratings, columns=transition_to).transpose().to_dict()
     final = np.random.choice(list(p_transition[initial_rating].keys()), 1, p=list(p_transition[initial_rating].values()))[0]
     return final
+
+
+def estimate_transition_vector(initial_rating, years):
+    """Simulate rates upgrade, downgrade in n years.
+
+    This function simulates the movement of the initial ratings over time,
+    by using the function recursively, i.e.: the initial rating feeds the
+    function, and the output of the function feeds the function again until
+    n periods have been completed. This is a simple one state Markov process.
+    """
+    input_list = [initial_rating]
+    if input_list == []:
+        return 0
+    else:
+        for i in range(years-1):
+            new_rating = estimate_1yr_transition(initial_rating=input_list[-1])
+            input_list.append(new_rating)
+            if new_rating == 'D':
+                return input_list
+    return input_list
