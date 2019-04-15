@@ -109,7 +109,7 @@ def simulate_correlated_random_numbers(corr_matrix, n=1000):
 
 
 def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_stress=1):
-    """Simulate multiple future interest rates.
+    """Simulate 1 path of multiple future interest rates.
 
     Given an historical time series of interest rates, an index of future dates,
     and a dictionary of autoregresive parameters for the interest rates
@@ -135,3 +135,26 @@ def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_st
     rates_df = pd.DataFrame(fut_rates, index=date_ix)
     rates_df.columns = train_df.columns
     return rates_df
+
+
+def simulate_several_sets_correlated_rates(df_train, sims, date_index, ar_params_dict):
+    """Simulate many paths of multiple future interest rates.
+
+    Given an historical time series of interest rates in a df, the number of
+    simulations to perform, an index of future dates, and a dictionary of
+    autoregresive parameters for the interest rates this function generates a
+    dictionary of data frames contaning paths of all correlated interest rates
+    in the historical time series, plus a dictionary of dfs with the rates for
+    specifc rates.
+    """
+    assets = df_train.columns.tolist()
+    all_sims = {}
+    for i in range(sims):
+        all_sims[i] = simulate_single_set_interest_rates(df_train, date_index, ar_params_dict)
+    master_sim = pd.DataFrame(pd.concat(all_sims, axis=1))
+    master_sim.columns = master_sim.columns.get_level_values(1)
+    asset_sim = {}
+    for asset in assets:
+        asset_sim[asset] = master_sim.filter(like=asset, axis=1)
+        asset_sim[asset].columns = list(np.arange(sims))
+    return all_sims, asset_sim
