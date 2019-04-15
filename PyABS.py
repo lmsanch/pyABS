@@ -107,6 +107,7 @@ def simulate_correlated_random_numbers(corr_matrix, n=1000):
     ans = rnd_numbers@upper_cholesky
     return(ans)
 
+
 def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_stress=1):
     """Multivariate random normal.
 
@@ -115,22 +116,23 @@ def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_st
     numerical solutions.
     https://math.stackexchange.com/questions/2079137/generating-multivariate-normal-samples-why-cholesky
     """
-    corr_matrix = df_weekly_train.corr().as_matrix()
+    corr_matrix = train_df.corr().as_matrix()
     fut_rates = {}
     for i in range(train_df.shape[1]):
         fut_rates[i] = np.zeros(len(date_ix))
-        fut_rates[i][0] = train_df.iloc[-1,i]
+        fut_rates[i][0] = train_df.iloc[-1, i]
 
     corr_rnd = simulate_correlated_random_numbers(corr_matrix)
     for k in range(train_df.shape[1]):
-        for l in range(len(date_ix)):
-            if l != 0:
-                fut_rates[k][l] = fut_rates[k][l-1]*ar_params_dict[k]['AR1'] + ar_params_dict[k]['vol'] * corr_rnd[:,k][l]
-                fut_rates[k][l] = (fut_rates[k][l])*(vol_stress)
-                #for any spread less than 10bps, repeat previous spread
-                if fut_rates[k][l] < 0:
-                    fut_rates[k][l] = fut_rates[k][l-1]
-                    #fut_rates[k][l] = 10
+        for z in range(len(date_ix)):
+            # skip the first value, since it is the seed value for the sim
+            if z != 0:
+                fut_rates[k][z] = fut_rates[k][z-1]*ar_params_dict[k]['AR1'] + ar_params_dict[k]['vol'] * corr_rnd[:, k][z]
+                fut_rates[k][z] = (fut_rates[k][z])*(vol_stress)
+                # for cases ofa simulatd negative spread, set the sread to the
+                # previous positive spread
+                if fut_rates[k][z] < 0:
+                    fut_rates[k][z] = fut_rates[k][z-1]
     rates_df = pd.DataFrame(fut_rates, index=date_ix)
     rates_df.columns = train_df.columns
     return rates_df
