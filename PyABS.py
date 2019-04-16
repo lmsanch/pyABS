@@ -167,7 +167,7 @@ def estimate_1yr_transition(initial_rating='AAA'):
     ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC'] to the same rating plus the 'D'
     (default) state, based on observed trasitions for ABS in 1 year, excluding
     mortgages. These are approximations, and each asset class should have its
-    own transtion matrix.
+    own transition matrix.
     """
     data = np.array([[9.081e-01, 8.330e-02, 6.500e-03, 9.000e-04, 6.000e-04, 3.000e-04, 2.000e-04, 1.000e-04],
                      [7.000e-03, 9.065e-01, 7.790e-02, 6.400e-03, 6.000e-04, 1.300e-03, 2.000e-04, 1.000e-04],
@@ -202,3 +202,85 @@ def estimate_transition_vector(initial_rating, years):
             if new_rating == 'D':
                 return input_list
     return input_list
+
+
+def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict, spreads_dict, date_index, to_invest=[30, 20, 20, 20, 10]):
+    """Simulate rates upgrade, downgrade in n years.
+
+    This function simulates the movement of the initial ratings over time,
+    by using the function recursively, i.e.: the initial rating feeds the
+    function, and the output of the function feeds the function again until
+    n periods have been completed. This is a simple one state Markov process.
+    """
+    purchase_dict = {}
+    for i in range(sims):
+        capital = []
+        assets = np.random.choice(list(p_issuance.keys()), purchase_weeks, p=list(p_issuance.values()))
+        terms = np.random.choice(list(p_term.keys()), purchase_weeks, p=list(p_term.values()))
+        for asset, term in list(zip(assets, terms)):
+            capital.append(f_risk_capital[asset][term])
+        data_dict = {'rate_label': list(assets),
+                     'term': list(terms),
+                     'f_risk_capital': capital}
+        purchase_dict[i] = pd.DataFrame(data_dict)
+        purchase_dict[i]['purchase_week'] = purchase_dict[i].index+1
+        purchase_dict[i]['purchase_date'] = date_index[purchase_dict[i]['purchase_week']]
+        purchase_dict[i]['maturity_date'] = date_index[purchase_dict[i]['purchase_week']+(purchase_dict[i]['term']*52)]
+        purchase_dict[i]['asset'] = purchase_dict[i]['term'].astype(str) + '_yr_' + purchase_dict[i]['rate_label']
+        purchase_dict[i]['benchmark_asset'] = '3_yr_' + purchase_dict[i]['rate_label']
+
+    # add zero loss expected return
+    for i in range(sims):
+        for ix, col in purchase_dict[i].iterrows():
+            purchase_dict[i].at[ix, 'benchmark_ABS_spread'] = rates_sim_dict[i].iloc[col['purchase_week']][col['benchmark_asset']]
+            purchase_dict[i].at[ix, 'libor'] = rates_sim_dict[i].iloc[col['purchase_week']]['libor']
+            purchase_dict[i].at[ix, 'risk_capital'] = to_invest[ix]
+            purchase_dict[i].at[ix, 'fed_loan'] = (to_invest[ix]/col['f_risk_capital'])-to_invest[ix]
+            purchase_dict[i].at[ix, 'final_rating'] = estimate_transition_vector('AAA', col['term'])[-1]
+        purchase_dict[i]['total_purchase'] = purchase_dict[i]['fed_loan'] + purchase_dict[i]['risk_capital']
+        purchase_dict[i]['spread_over_libor'] = purchase_dict[i]['benchmark_ABS_spread'] - (purchase_dict[i]['asset'].map(spreads_dict))
+        r1 = ((purchase_dict[i]['libor'] + purchase_dict[i]['spread_over_libor']))*purchase_dict[i]['f_risk_capital']
+        r2 = ((purchase_dict[i]['spread_over_libor'])-100)*(1-purchase_dict[i]['f_risk_capital'])
+        purchase_dict[i]['exp_annual_r'] = ((r1+r2)/(purchase_dict[i]['f_risk_capital']))/10000
+        purchase_dict[i] = purchase_dict[i][['asset',
+                                             'purchase_week',
+                                             'purchase_date',
+                                             'maturity_date',
+                                             'term',
+                                             'f_risk_capital',
+                                             'risk_capital',
+                                             'fed_loan',
+                                             'total_purchase',
+                                             'libor',
+                                             'spread_over_libor',
+                                             'exp_annual_r',
+                                             'final_rating']]
+        for col in ['risk_capital', 'fed_loan', 'total_purchase', 'libor', 'spread_over_libor']:
+            purchase_dict[i][col] = purchase_dict[i][col].astype(int)
+
+    return purchase_dict
+
+
+f_risk_capital = {'auto_AAA':         {1: 0.10,
+                                       2: 0.11,
+                                       3: 0.12},
+                  'student_loan_AAA': {1: 0.08,
+                                       2: 0.09,
+                                       3: 0.10},
+                  'helc_AAA':         {1: 0.12,
+                                       2: 0.13,
+                                       3: 0.14},
+                  'credit_card_AAA':  {1: 0.05,
+                                       2: 0.05,
+                                       3: 0.06}}
+
+
+p_term = {1: 0.20,
+          2: 0.30,
+          3: 0.50}
+
+
+p_issuance = {'auto_AAA':         0.20,
+              'student_loan_AAA': 0.40,
+              'helc_AAA':         0.20,
+              'credit_card_AAA':  0.20}
