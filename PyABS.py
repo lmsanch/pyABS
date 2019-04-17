@@ -5,6 +5,7 @@ from pandas.compat import lmap
 from statsmodels.tsa.arima_model import ARMA
 from scipy.linalg import cholesky
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 def autocorrelation_and_significance(series, ax=None, **kwds):
@@ -148,7 +149,7 @@ def simulate_several_sets_correlated_rates(df_train, sims, date_index, ar_params
     """
     assets = df_train.columns.tolist()
     all_sims = {}
-    for i in range(sims):
+    for i in tqdm(range(sims)):
         all_sims[i] = simulate_single_set_interest_rates(df_train, date_index, ar_params_dict)
     master_sim = pd.DataFrame(pd.concat(all_sims, axis=1))
     master_sim.columns = master_sim.columns.get_level_values(1)
