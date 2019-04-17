@@ -75,7 +75,7 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
 
 
 def ar_param_dictionary(train_df, order):
-    """Parameters of autoregreesive models.
+    """Parameters of autoregressive models.
 
     Given a train df, this functions fits Auto Regressive models of any oder
     given for the different time series in the train df, and stores a summary
