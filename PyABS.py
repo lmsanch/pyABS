@@ -111,7 +111,7 @@ def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_st
     """Simulate 1 path of multiple future interest rates.
 
     Given an historical time series of interest rates, an index of future dates,
-    and a dictionary of autoregresive parameters for the interest rates
+    and a dictionary of autoregressive parameters for interest rates,
     this function generates a path of correlated interest rates.
     """
     corr_matrix = train_df.corr().as_matrix()
@@ -141,10 +141,10 @@ def simulate_several_sets_correlated_rates(df_train, sims, date_index, ar_params
 
     Given an historical time series of interest rates in a df, the number of
     simulations to perform, an index of future dates, and a dictionary of
-    autoregresive parameters for the interest rates this function generates a
-    dictionary of data frames contaning paths of all correlated interest rates
+    autoregressive parameters for interest rates, this function generates a
+    dictionary of data frames contaning paths for all correlated interest rates
     in the historical time series, plus a dictionary of dfs with the rates for
-    specifc rates.
+    specifc rates, for further analysis.
     """
     assets = df_train.columns.tolist()
     all_sims = {}
@@ -163,7 +163,7 @@ def estimate_1yr_transition(initial_rating='AAA'):
     """Simulate 1 period rating transition.
 
     This function estimates the transition from any given rating
-    ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC'] to the same rating plus the 'D'
+    'AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC' to the same rating plus the 'D'
     (default) state, based on observed trasitions for ABS in 1 year, excluding
     mortgages. These are approximations, and each asset class should have its
     own transition matrix.
@@ -184,12 +184,12 @@ def estimate_1yr_transition(initial_rating='AAA'):
 
 
 def estimate_transition_vector(initial_rating, years):
-    """Simulate rates upgrade, downgrade in n years.
+    """Simulate rates upgrades or downgrades in n years.
 
-    This function simulates the movement of the initial ratings over time,
+    This function simulates the movement of the initial rating over time,
     by using the function recursively, i.e.: the initial rating feeds the
     function, and the output of the function feeds the function again until
-    n periods have been completed. This is a simple one state Markov process.
+    n periods have been completed. This is a one state Markov process.
     """
     input_list = [initial_rating]
     if input_list == []:
@@ -204,12 +204,10 @@ def estimate_transition_vector(initial_rating, years):
 
 
 def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict, spreads_dict, date_index, to_invest=[30, 20, 20, 20, 10]):
-    """Simulate rates upgrade, downgrade in n years.
+    """Simulate purchases per scenarios.
 
-    This function simulates the movement of the initial ratings over time,
-    by using the function recursively, i.e.: the initial rating feeds the
-    function, and the output of the function feeds the function again until
-    n periods have been completed. This is a simple one state Markov process.
+    This function simulates the purchase of assets under the different interest
+    rates scenarios.
     """
     purchase_dict = {}
     for i in range(sims):
