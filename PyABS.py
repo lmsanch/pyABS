@@ -45,10 +45,10 @@ def autocorrelation_and_significance(series, ax=None, **kwds):
 def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kwds):
     """Optimal lags using Bayes or Akaike Information Criteria.
 
-    Given a time series, and significatnlags returned by the
-    autocorrelation_and_significance function, this function test n values (cap)
+    Given a time series, and significant lags returned by the
+    autocorrelation_and_significance function, this function tests n values (cap)
     to find out if auto regresive models of order > 1 are worth exploring.
-    Test criteria can be Akaike ('AIC') or Baye ('BIC').
+    Test criteria can be Akaike ('AIC') or Bayes ('BIC').
     """
     ax = plt.gca()
     plt.rc('xtick', labelsize=13)
@@ -75,11 +75,11 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
 
 
 def ar_param_dictionary(train_df, order):
-    """Parameters of autoregreesive models.
+    """Parameters of autoregressive models.
 
-    Given a train df, this functions fits Auto Regressive models of any oder
-    given for the different time series in the train df, and stores a summary
-    of results, the AR1 value, and the volatility (syandard deviation) of
+    Given a train df, this functions fits auto regressive models of any oder
+    given for the different time series in the train df and stores a summary
+    of results, the AR1 value and the volatility (standard deviation) of
     observations.
     """
     ar_params = {}
@@ -98,8 +98,7 @@ def simulate_correlated_random_numbers(corr_matrix, n=1000):
     """Multivariate random normal.
 
     A generalization of the one-dimensional normal distribution to higher
-    dimensions, using Cholesky decomposition, which is useful for efficient
-    numerical solutions.
+    dimensions, using Cholesky decomposition.
     https://math.stackexchange.com/questions/2079137/generating-multivariate-normal-samples-why-cholesky
     """
     upper_cholesky = cholesky(corr_matrix)
