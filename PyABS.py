@@ -211,7 +211,7 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
     rates scenarios.
     """
     purchase_dict = {}
-    for i in range(sims):
+    for i in tqdm(range(sims)):
         capital = []
         assets = np.random.choice(list(p_issuance.keys()), purchase_weeks, p=list(p_issuance.values()))
         terms = np.random.choice(list(p_term.keys()), purchase_weeks, p=list(p_term.values()))
@@ -253,8 +253,8 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
                                              'spread_over_libor',
                                              'exp_annual_r',
                                              'final_rating']]
-        for col in ['risk_capital', 'fed_loan', 'total_purchase', 'libor', 'spread_over_libor']:
-            purchase_dict[i][col] = purchase_dict[i][col].astype(int)
+        # for col in ['risk_capital', 'fed_loan', 'total_purchase', 'libor', 'spread_over_libor']:
+        #    purchase_dict[i][col] = purchase_dict[i][col].astype(int)
 
     return purchase_dict
 
@@ -279,6 +279,6 @@ p_term = {1: 0.20,
 
 
 p_issuance = {'auto_AAA':         0.20,
-              'student_loan_AAA': 0.40,
-              'helc_AAA':         0.20,
-              'credit_card_AAA':  0.20}
+              'student_loan_AAA': 0.20,
+              'helc_AAA':         0.30,
+              'credit_card_AAA':  0.30}
