@@ -1,6 +1,6 @@
+# PyABS, light version of aspects of proprietary code
 import pandas as pd
 import numpy as np
-# import datetime
 from pandas.compat import lmap
 from statsmodels.tsa.arima_model import ARMA
 from scipy.linalg import cholesky
@@ -257,6 +257,19 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
         #    purchase_dict[i][col] = purchase_dict[i][col].astype(int)
 
     return purchase_dict
+
+
+def plot_sim_and_real(asset, assets_sims, sims, df_test, cap=10, percentiles = [25,50,75]):
+    cols = assets_sims[asset].columns
+    # plot the percentile bands
+    for i in range(len(percentiles)):
+        assets_sims[asset]['p'+ str(percentiles[i])] = assets_sims[asset][cols].apply(lambda x: np.percentile(x, percentiles[i]), axis=1)
+        assets_sims[asset]['p'+ str(percentiles[i])][:cap].plot(color='k', linestyle='dotted', linewidth=3)
+    # plot the simulation paths
+    for i in range(sims):
+        assets_sims[asset][i][:cap].plot(color='blue', alpha=0.01)
+    # plot the real rates
+    df_weekly_test[asset][:cap].plot(figsize=(20,10), color='orange', linewidth=4)
 
 
 f_risk_capital = {'auto_AAA':         {1: 0.10,
