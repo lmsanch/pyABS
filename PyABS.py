@@ -227,7 +227,6 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
         purchase_dict[i]['asset'] = purchase_dict[i]['term'].astype(str) + '_yr_' + purchase_dict[i]['rate_label']
         purchase_dict[i]['benchmark_asset'] = '3_yr_' + purchase_dict[i]['rate_label']
 
-    # add zero loss expected return
     for i in range(sims):
         for ix, col in purchase_dict[i].iterrows():
             purchase_dict[i].at[ix, 'benchmark_ABS_spread'] = rates_sim_dict[i].iloc[col['purchase_week']][col['benchmark_asset']]
@@ -253,8 +252,8 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
                                              'spread_over_libor',
                                              'exp_annual_r',
                                              'final_rating']]
-        # for col in ['risk_capital', 'fed_loan', 'total_purchase', 'libor', 'spread_over_libor']:
-        #    purchase_dict[i][col] = purchase_dict[i][col].astype(int)
+        for col in ['risk_capital', 'fed_loan', 'total_purchase', 'libor', 'spread_over_libor']:
+            purchase_dict[i][col] = purchase_dict[i][col].astype(int)
 
     return purchase_dict
 
