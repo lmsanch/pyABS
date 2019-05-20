@@ -262,8 +262,7 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
                                              'spread_over_libor',
                                              'exp_annual_r',
                                              'final_rating']]
-        for col in ['risk_capital', 'fed_loan', 'total_purchase', 'libor', 'spread_over_libor']:
-            purchase_dict[i][col] = purchase_dict[i][col].astype(int)
+
 
     return purchase_dict
 
