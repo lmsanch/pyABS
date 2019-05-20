@@ -262,41 +262,16 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
                                              'spread_over_libor',
                                              'exp_annual_r',
                                              'final_rating']]
-
-
     return purchase_dict
 
 
-# def plot_sim_and_real(asset, assets_sims, sims, df_test, cap=10, percentiles=[25, 50, 75]):
-#    cols = assets_sims[asset].columns
-#    # plot the percentile bands
-#    for i in range(len(percentiles)):
-#        assets_sims[asset]['p'+ str(percentiles[i])] = assets_sims[asset][cols].apply(lambda x: np.percentile(x, percentiles[i]), axis=1)
-#        assets_sims[asset]['p'+ str(percentiles[i])][:cap].plot(color='k', linestyle='dotted', linewidth=3)
-#    # plot the simulation paths
-#    for i in range(sims):
-#        assets_sims[asset][i][:cap].plot(color='blue', alpha=0.01)
-#    # plot the real rates
-#    return df_weekly_test[asset][:cap].plot(figsize=(20, 10), color='orange', linewidth=4)
+f_risk_capital = {'auto_AAA':         {1: 0.10, 2: 0.11, 3: 0.12},
+                  'student_loan_AAA': {1: 0.08, 2: 0.09, 3: 0.10},
+                  'helc_AAA':         {1: 0.12, 2: 0.13, 3: 0.14},
+                  'credit_card_AAA':  {1: 0.05, 2: 0.05, 3: 0.06}}
 
 
-f_risk_capital = {'auto_AAA':         {1: 0.10,
-                                       2: 0.11,
-                                       3: 0.12},
-                  'student_loan_AAA': {1: 0.08,
-                                       2: 0.09,
-                                       3: 0.10},
-                  'helc_AAA':         {1: 0.12,
-                                       2: 0.13,
-                                       3: 0.14},
-                  'credit_card_AAA':  {1: 0.05,
-                                       2: 0.05,
-                                       3: 0.06}}
-
-
-p_term = {1: 0.20,
-          2: 0.30,
-          3: 0.50}
+p_term = {1: 0.20, 2: 0.30, 3: 0.50}
 
 
 p_issuance = {'auto_AAA':         0.20,
