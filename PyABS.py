@@ -1,7 +1,7 @@
-# PyABS, light version of aspects of proprietary code
+"""PyABS, light version of aspects of proprietary code."""
 import pandas as pd
-import numpy as np
 from pandas.compat import lmap
+import numpy as np
 from statsmodels.tsa.arima_model import ARMA
 from scipy.linalg import cholesky
 import matplotlib.pyplot as plt
@@ -46,10 +46,15 @@ def autocorrelation_and_significance(series, ax=None, **kwds):
 def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kwds):
     """Optimal lags using Bayes or Akaike Information Criteria.
 
-    Given a time series, and significant lags returned by the
-    autocorrelation_and_significance function, this function tests n values (cap)
-    to find out if auto regresive models of order > 1 are worth exploring.
-    Test criteria can be Akaike ('AIC') or Bayes ('BIC').
+    This function tests n lags to find out if auto regresive models of
+    order > 1 are worth exploring, using BIC or AIC information criteria.
+    Keyword arguments:
+    data -- the array to test
+    lags_to_test -- list of lags to test
+    cap -- max number of lags t plot
+    tst_criteria -- lower band array
+    low_band_name -- either BIC or AIC
+    **kwds -- matplotlib keyword arguments
     """
     ax = plt.gca()
     plt.rc('xtick', labelsize=13)
@@ -78,7 +83,7 @@ def optimal_params_ar_model(data, lags_to_test, cap=4, test_criteria='BIC', **kw
 def ar_param_dictionary(train_df, order):
     """Parameters of autoregressive models.
 
-    Given a train df, this functions fits auto regressive models of any oder
+    Given a train df, this functions fits auto regressive models of any order
     given for the different time series in the train df and stores a summary
     of results, the AR1 value and the volatility (standard deviation) of
     observations.
@@ -105,15 +110,20 @@ def simulate_correlated_random_numbers(corr_matrix, n=1000):
     upper_cholesky = cholesky(corr_matrix)
     rnd_numbers = np.random.normal(0.0, 1.0, size=(n, corr_matrix.shape[0]))
     ans = rnd_numbers@upper_cholesky
-    return(ans)
+    return ans
 
 
-def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict, vol_stress=1):
+def simulate_single_set_interest_rates(train_df, date_ix, ar_params_dict,
+                                       vol_stress=1):
     """Simulate 1 path of multiple future interest rates.
 
-    Given an historical time series of interest rates, an index of future dates,
-    and a dictionary of autoregressive parameters for interest rates,
-    this function generates a path of correlated interest rates.
+    Given an historical time series of interest rates, this function generates
+    a path of correlated interest rates.
+    Keyword arguments:
+    train_df -- data frame with time series
+    date_ix -- an array wit hthe dates to simulate
+    ar_params_dict -- dictionariy containing parameters for different ts
+    vol_stress -- vol_stress
     """
     corr_matrix = train_df.corr().as_matrix()
     fut_rates = {}
@@ -193,14 +203,14 @@ def estimate_transition_vector(initial_rating, years):
     n periods have been completed. This is a one state Markov process.
     """
     input_list = [initial_rating]
+    new_rating = {}
     if input_list == []:
         return 0
-    else:
-        for i in range(years-1):
-            new_rating = estimate_1yr_transition(initial_rating=input_list[-1])
-            input_list.append(new_rating)
-            if new_rating == 'D':
-                return input_list
+    for i in range(years-1):
+        new_rating[i] = estimate_1yr_transition(initial_rating=input_list[-1])
+        input_list.append(new_rating[i])
+        if new_rating == 'D':
+            return input_list
     return input_list
 
 
@@ -258,17 +268,17 @@ def simulate_purchase_per_sim_rate_scenario(purchase_weeks, sims, rates_sim_dict
     return purchase_dict
 
 
-def plot_sim_and_real(asset, assets_sims, sims, df_test, cap=10, percentiles = [25,50,75]):
-    cols = assets_sims[asset].columns
-    # plot the percentile bands
-    for i in range(len(percentiles)):
-        assets_sims[asset]['p'+ str(percentiles[i])] = assets_sims[asset][cols].apply(lambda x: np.percentile(x, percentiles[i]), axis=1)
-        assets_sims[asset]['p'+ str(percentiles[i])][:cap].plot(color='k', linestyle='dotted', linewidth=3)
-    # plot the simulation paths
-    for i in range(sims):
-        assets_sims[asset][i][:cap].plot(color='blue', alpha=0.01)
-    # plot the real rates
-    df_weekly_test[asset][:cap].plot(figsize=(20,10), color='orange', linewidth=4)
+# def plot_sim_and_real(asset, assets_sims, sims, df_test, cap=10, percentiles=[25, 50, 75]):
+#    cols = assets_sims[asset].columns
+#    # plot the percentile bands
+#    for i in range(len(percentiles)):
+#        assets_sims[asset]['p'+ str(percentiles[i])] = assets_sims[asset][cols].apply(lambda x: np.percentile(x, percentiles[i]), axis=1)
+#        assets_sims[asset]['p'+ str(percentiles[i])][:cap].plot(color='k', linestyle='dotted', linewidth=3)
+#    # plot the simulation paths
+#    for i in range(sims):
+#        assets_sims[asset][i][:cap].plot(color='blue', alpha=0.01)
+#    # plot the real rates
+#    return df_weekly_test[asset][:cap].plot(figsize=(20, 10), color='orange', linewidth=4)
 
 
 f_risk_capital = {'auto_AAA':         {1: 0.10,
